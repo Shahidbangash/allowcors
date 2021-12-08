@@ -7,6 +7,9 @@ var bodyParser = require("body-parser");
 const fetch = import('node-fetch');
 const blockedPhrases = new RegExp(/porn|sexy/);
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
 app.use(cors());
 
 var corsOptions = {
