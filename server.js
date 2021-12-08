@@ -7,6 +7,7 @@ var bodyParser = require("body-parser");
 const fetch = import('node-fetch');
 const blockedPhrases = new RegExp(/porn|sexy/);
 
+app.use(cors());
 
 var corsOptions = {
     origin: "*",
@@ -18,9 +19,7 @@ app.get("/", cors(corsOptions), function (req, res, next) {
     res.json({ msg: "This is CORS-enabled for Flutter Web" });
 });
 app.post("/proxy-request", cors(corsOptions), function (req, res, next) {
-
     let url = req.query.url;
-
     if (!url) {
         url = req.body.url;
     }
@@ -32,7 +31,6 @@ app.post("/proxy-request", cors(corsOptions), function (req, res, next) {
     if (url.match(blockedPhrases)) {
         res.status(403).send('Phrase in URL is disallowed.');
     }
-
     fetch(url, {
         method: req.method,
         body: req.get('content-type') === 'application/json' ? JSON.stringify(req.body) : req.body,
@@ -43,7 +41,6 @@ app.post("/proxy-request", cors(corsOptions), function (req, res, next) {
         .then(r => r.headers.get('content-type') === 'application/json' ? r.json() : r.text())
         .then(body => res.status(200).send(body));
 });
-
 
 
 var port = process.env.PORT || 3000;
