@@ -19,14 +19,17 @@ app.get("/", cors(corsOptions), function (req, res, next) {
     res.json({ msg: "This is CORS-enabled for Flutter Web" });
 });
 app.post("/proxy-request", cors(corsOptions), function (req, res, next) {
-    let url = req.query.url;
-    if (!url) {
-        url = req.body.url;
-    }
+
+    // let url = req.query.url;
+    // if (!url) {
+    //     url = req.body.url;
+    // }
+    const { url } = req.body;
     if (!url) {
         res.status(403).send('URL is empty.');
     }
-    console.log('Request:', url);
+    // console.log('Request:', url);
+
     // disallow blocked phrases
     if (url.match(blockedPhrases)) {
         res.status(403).send('Phrase in URL is disallowed.');
