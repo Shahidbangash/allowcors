@@ -1,80 +1,108 @@
 var express = require("express");
 var cors = require("cors");
 var app = express();
+var admin = require("firebase-admin");
+require("dotenv").config();
 var bodyParser = require("body-parser");
-// var fetch = require("node-fetch");
-// import fetch from 'node-fetch';
-// const fetch = require('node-fetch');
-const axios = require('axios');
-const blockedPhrases = new RegExp(/porn|sexy/);
+// const braintree = require("braintree");
+// const adminPath = require("./horselovxoxx-firebase-adminsdk-38dvi-6c06a6a504.json");
 
+
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
 
-app.use(cors());
+admin.initializeApp({
+    credential: admin.credential.cert({
+      project_id: "eezynapp",
+      private_key_id: process.env.private_key_id,
+      clientEmail: process.env.client_email,
+      privateKey: process.env.private_key,
+    }),
+});
+// console.log(`Admin name ${ad.name}`);
 
 var corsOptions = {
-  origin: "*",
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  optionsSuccessStatus: 200, // some legacy browsers (IE11, variousSmartTVs) choke on 204
+    origin: "*",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
 
-app.get("/", cors(corsOptions), function (req, res, next) {
-  res.json({ msg: "This is CORS-enabled for Flutter Web" });
-});
-app.post("/proxy-request", cors(corsOptions), async function (req, res, next) {
-
-  // let url = req.query.url;
-  // if (!url) {
-  //     url = req.body.url;
-  // }
-  const { url } = req.body;
-  if (!url) {
-    res.status(403).send('URL is empty.');
-  }
-  // console.log('Request:', url);
-
-  // disallow blocked phrases
-  if (url.match(blockedPhrases)) {
-    res.status(403).send('Phrase in URL is disallowed.');
-  }
-
-  try {
-    var response = await axios.post(url, req.body);
-    console.log("JSON data from API ==>", response.data);
-    res.status(200).json({ message: "response", data: response.data });
-  }
-  catch (error) {
-    console.log(`in error ${error}`);
-    res.status(400).json({ success: false, error });
-  }
-
-  // axios.post(url, req.body)
-  //   .then(function (response) {
-  //     console.log(`in respone ${response.data}`);
 
 
-  //   })
-  //   .catch(function (error) {
 
-  //   });
 
-  // axios.post(url, req.body).the;
-  // await axios(url, {
-  //     method: req.method,
-  //     body: req.get('content-type') === 'application/json' ? JSON.stringify(req.body) : req.body,
-  //     headers: {
-  //         'Content-Type': req.get('Content-Type'),
-  //     },
-  // })
-  //     .then(r => r.headers.get('content-type') === 'application/json' ? r.json() : r.text())
-  //     .then(body => res.status(200).send(body));
-});
+app.post(
+    "/send-notification",
+    cors(corsOptions),
+    async function (req, res, next) {
+        const { body } = req;
+        const deviceToken =
+            req.query.deviceToken ||
+            body.deviceToken ||
+            (body.data && body.data.deviceToken);
 
+        const notificationtype = req.body.type;
+        const senderName = req.body["senderName"];
+        const messageContent = req.body["messageContent"];
+        const receiverID = req.body["receiverID"];
+        const senderID = req.body["senderID"];
+
+        if (notificationtype != null && notificationtype === "message") {
+            return await admin
+                .messaging()
+                .sendMulticast({
+                    tokens: [
+                        deviceToken,
+                    ],
+                    notification: {
+                        title: senderName,
+                        body: messageContent,
+                    },
+                    data: {
+                        "senderID": senderID,
+                        receiverID,
+                        roomId: req.body.roomId,
+                        "type": "message",
+                    }
+                }).catch((error) => {
+                    return res.status(500).json({
+                        success: false,
+                        message: "error",
+                        error,
+                    });
+                });
+        }
+
+        await admin
+            .messaging()
+            .sendMulticast({
+                tokens: [
+                    deviceToken,
+                ],
+                notification: {
+                    title: senderName,
+                    body: messageContent,
+                },
+                // data: {
+                //     "senderID":
+                // }
+            })
+            .then(() => {
+                console.log("object");
+            })
+            .catch((error) => {
+                console.log(`Error ${error}`);
+            });
+
+        res.send({
+            confirm: "new project",
+            "deviceToken ": `${deviceToken}`,
+        });
+    }
+);
 
 var port = process.env.PORT || 3000;
 
 var server = app.listen(port, function () {
-  console.log(`Click on link to see http://localhost:${port}`);
+    console.log(`Click on link to see http://localhost:${port}`);
 });
-
