@@ -16,7 +16,8 @@ admin.initializeApp({
       project_id: "eezynapp",
       private_key_id: process.env.private_key_id,
       clientEmail: process.env.client_email,
-      privateKey: process.env.private_key,
+      privateKey: process.env.private_key?.replace(/\\n/g, '\n'),
+      // privateKey: process.env.private_key,
     }),
 });
 // console.log(`Admin name ${ad.name}`);
