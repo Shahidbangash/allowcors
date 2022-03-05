@@ -28,6 +28,10 @@ var corsOptions = {
     optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
 
+app.get("/", cors(corsOptions),function(req,res,next){
+  res.send("Server is running");
+});
+
 
 
 
