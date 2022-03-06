@@ -49,8 +49,8 @@ app.post(
         const notificationtype = req.body.type;
         const senderName = req.body["senderName"];
         const messageContent = req.body["messageContent"];
-        const receiverID = req.body["receiverID"];
-        const senderID = req.body["senderID"];
+        // const receiverID = req.body["receiverID"];
+        // const senderID = req.body["senderID"];
 
         if (notificationtype != null && notificationtype === "message") {
             return await admin
@@ -64,10 +64,10 @@ app.post(
                         body: messageContent,
                     },
                     data: {
-                        "senderID": senderID,
-                        receiverID,
+                        // "senderID": senderID,
+                        // receiverID,
                         roomId: req.body.roomId,
-                        "type": "message",
+                        "type": notificationtype,
                     }
                 }).catch((error) => {
                     return res.status(500).json({
