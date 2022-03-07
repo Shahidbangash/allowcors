@@ -4,8 +4,6 @@ var app = express();
 var admin = require("firebase-admin");
 require("dotenv").config();
 var bodyParser = require("body-parser");
-// const braintree = require("braintree");
-// const adminPath = require("./horselovxoxx-firebase-adminsdk-38dvi-6c06a6a504.json");
 
 
 app.use(express.urlencoded({ extended: true }));
@@ -33,9 +31,6 @@ app.get("/", cors(corsOptions), function (req, res, next) {
 });
 
 
-
-
-
 app.post(
     "/send-notification",
     cors(corsOptions),
@@ -44,6 +39,9 @@ app.post(
         const deviceToken = req.body.deviceToken;
         const senderName = req.body.senderName;
         const messageContent = req.body.messageContent;
+        console.log(`Device Token ${deviceToken}`);
+        console.log(`Sender Name ${senderName}`);
+        console.log(`Message Content ${messageContent}`);
 
         await admin
             .messaging()
@@ -54,14 +52,18 @@ app.post(
                     title: senderName,
                     body: messageContent,
                 },
-                data: body,
+                data: {
+                    
+                },
             }).catch((error) => {
+                console.log(`Error Heree ${error}`);
                 return res.status(500).json({
                     success: false,
                     message: "error",
                     error,
                 });
             }).then(() => {
+                console.log(`Done Succesfully`);
                 res.status(200).json({
                     confirm: "new project",
                     "deviceToken ": `${deviceToken}`,
