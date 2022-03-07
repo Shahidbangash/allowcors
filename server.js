@@ -13,11 +13,11 @@ app.use(express.json());
 
 admin.initializeApp({
     credential: admin.credential.cert({
-      project_id: "eezynapp",
-      private_key_id: process.env.private_key_id,
-      clientEmail: process.env.client_email,
-      privateKey: process.env.private_key?.replace(/\\n/g, '\n'),
-      // privateKey: process.env.private_key,
+        project_id: "eezynapp",
+        private_key_id: process.env.private_key_id,
+        clientEmail: process.env.client_email,
+        privateKey: process.env.private_key?.replace(/\\n/g, '\n'),
+        // privateKey: process.env.private_key,
     }),
 });
 // console.log(`Admin name ${ad.name}`);
@@ -28,8 +28,8 @@ var corsOptions = {
     optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
 
-app.get("/", cors(corsOptions),function(req,res,next){
-  res.send("Server is running");
+app.get("/", cors(corsOptions), function (req, res, next) {
+    res.send("Server is running");
 });
 
 
@@ -41,62 +41,32 @@ app.post(
     cors(corsOptions),
     async function (req, res, next) {
         const { body } = req;
-        const deviceToken =
-            req.query.deviceToken ||
-            body.deviceToken ||
-            (body.data && body.data.deviceToken);
-
-        const notificationtype = req.body.type;
+        const deviceToken = req.query.deviceToken;
+        // const notificationtype = req.body.type;
         const senderName = req.body["senderName"];
         const messageContent = req.body["messageContent"];
-        // const receiverID = req.body["receiverID"];
-        // const senderID = req.body["senderID"];
-
-        if (notificationtype != null && notificationtype === "message") {
-            return await admin
-                .messaging()
-                .sendMulticast({
-                    tokens: [
-                        deviceToken,
-                    ],
-                    notification: {
-                        title: senderName,
-                        body: messageContent,
-                    },
-                    data: {
-                        // "senderID": senderID,
-                        // receiverID,
-                        roomId: req.body.roomId,
-                        "type": notificationtype,
-                    }
-                }).catch((error) => {
-                    return res.status(500).json({
-                        success: false,
-                        message: "error",
-                        error,
-                    });
-                });
-        }
 
         await admin
             .messaging()
             .sendMulticast({
-                tokens: [
-                    deviceToken,
-                ],
-                notification: {
+                tokens: [deviceToken],
+                notification:
+                {
                     title: senderName,
                     body: messageContent,
                 },
+                data: body,
                 // data: {
-                //     "senderID":
+
+                //     roomId: req.body.roomId,
+                //     "type": notificationtype,
                 // }
-            })
-            .then(() => {
-                console.log("object");
-            })
-            .catch((error) => {
-                console.log(`Error ${error}`);
+            }).catch((error) => {
+                return res.status(500).json({
+                    success: false,
+                    message: "error",
+                    error,
+                });
             });
 
         res.send({
