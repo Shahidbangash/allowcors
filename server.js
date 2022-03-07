@@ -62,7 +62,7 @@ app.post(
                     error,
                 });
             }).then(() => {
-                res.send({
+                res.status(200).json({
                     confirm: "new project",
                     "deviceToken ": `${deviceToken}`,
                 });
