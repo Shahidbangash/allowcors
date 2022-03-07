@@ -39,6 +39,7 @@ app.post(
         const deviceToken = req.body.deviceToken;
         const senderName = req.body.senderName;
         const messageContent = req.body.messageContent;
+        console.log(`Body is ${body}`);
         console.log(`Device Token ${deviceToken}`);
         console.log(`Sender Name ${senderName}`);
         console.log(`Message Content ${messageContent}`);
@@ -53,20 +54,22 @@ app.post(
                     body: messageContent,
                 },
                 data: {
-                    
+
                 },
-            }).catch((error) => {
+            }).
+            then(() => {
+                console.log(`Done Succesfully`);
+                return res.status(200).json({
+                    confirm: "new project",
+                    "deviceToken ": `${deviceToken}`,
+                });
+            })
+            .catch((error) => {
                 console.log(`Error Heree ${error}`);
                 return res.status(500).json({
                     success: false,
                     message: "error",
                     error,
-                });
-            }).then(() => {
-                console.log(`Done Succesfully`);
-                res.status(200).json({
-                    confirm: "new project",
-                    "deviceToken ": `${deviceToken}`,
                 });
             });
     }
