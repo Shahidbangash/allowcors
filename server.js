@@ -41,10 +41,9 @@ app.post(
     cors(corsOptions),
     async function (req, res, next) {
         const { body } = req;
-        const deviceToken = req.query.deviceToken;
-        // const notificationtype = req.body.type;
-        const senderName = req.body["senderName"];
-        const messageContent = req.body["messageContent"];
+        const deviceToken = req.body.deviceToken;
+        const senderName = req.body.senderName;
+        const messageContent = req.body.messageContent;
 
         await admin
             .messaging()
@@ -56,23 +55,18 @@ app.post(
                     body: messageContent,
                 },
                 data: body,
-                // data: {
-
-                //     roomId: req.body.roomId,
-                //     "type": notificationtype,
-                // }
             }).catch((error) => {
                 return res.status(500).json({
                     success: false,
                     message: "error",
                     error,
                 });
+            }).then(() => {
+                res.send({
+                    confirm: "new project",
+                    "deviceToken ": `${deviceToken}`,
+                });
             });
-
-        res.send({
-            confirm: "new project",
-            "deviceToken ": `${deviceToken}`,
-        });
     }
 );
 
