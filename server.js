@@ -53,9 +53,7 @@ app.post(
                     title: senderName,
                     body: messageContent,
                 },
-                data: {
-
-                },
+                data: body,
             }).
             then(() => {
                 console.log(`Done Succesfully`);
